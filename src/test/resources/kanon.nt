@@ -1,0 +1,33 @@
+<uri:P1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <uri:Person> .
+<uri:P2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <uri:Person> .
+<uri:P3> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <uri:Person> .
+<uri:P4> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <uri:Person> .
+<uri:P5> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <uri:Person> .
+<uri:P6> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <uri:Person> .
+<uri:P7> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <uri:Person> .
+
+<uri:P1> <http://xmlns.com/foaf/0.1/gender> "divers" .
+<uri:P3> <http://xmlns.com/foaf/0.1/gender> "divers" .
+<uri:P2> <http://xmlns.com/foaf/0.1/gender> "nb" .
+<uri:P4> <http://xmlns.com/foaf/0.1/gender> "nb" .
+<uri:P5> <http://xmlns.com/foaf/0.1/gender> "nb" .
+<uri:P6> <http://xmlns.com/foaf/0.1/gender> "w" .
+<uri:P7> <http://xmlns.com/foaf/0.1/gender> "w" .
+
+<uri:P1> <http://xmlns.com/foaf/0.1/age> "20-40" .
+<uri:P3> <http://xmlns.com/foaf/0.1/age> "20-40" .
+<uri:P2> <http://xmlns.com/foaf/0.1/age> "20-40" .
+<uri:P4> <http://xmlns.com/foaf/0.1/age> "20-40" .
+<uri:P5> <http://xmlns.com/foaf/0.1/age> "20-40" .
+<uri:P6> <http://xmlns.com/foaf/0.1/age> "25-30" .
+<uri:P7> <http://xmlns.com/foaf/0.1/age> "25-30" .
+
+<uri:P1> <http://xmlns.com/foaf/0.1/zip> "12..." .
+<uri:P3> <http://xmlns.com/foaf/0.1/zip> "12..." .
+<uri:P2> <http://xmlns.com/foaf/0.1/zip> "7...." .
+<uri:P4> <http://xmlns.com/foaf/0.1/zip> "7...." .
+<uri:P5> <http://xmlns.com/foaf/0.1/zip> "7...." .
+<uri:P6> <http://xmlns.com/foaf/0.1/zip> "32..." .
+<uri:P7> <http://xmlns.com/foaf/0.1/zip> "32..." .
+
+<uri:P7> <uri:test> "test" .
