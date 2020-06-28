@@ -90,7 +90,6 @@ public class GraphComponent {
         if(buildSGPs){
             List<SGP> toAdd = new ArrayList<SGP>();
             for(SGP sgp : sgps){
-                //TODO also check if new connections between buckets are created (currently: b1: ac , b2: de, t: cd -> b3: acd and b4: cde but not b5: acde will be added) 
                 if(sgp.checkConnection(t)){
                     SGP newBucket = new SGP();
                     newBucket.addAll(sgp);
@@ -98,7 +97,18 @@ public class GraphComponent {
                     toAdd.add(newBucket);
                 }
             }
+            List<SGP> toAddCulm = new ArrayList<SGP>();
+            //creating b5   here: b1: ac , b2: de, t: cd -> b3: acd and b4: cde, b5: acde
+            for(int i=0;i<toAdd.size();i++){
+                for(int k=i+1;k<toAdd.size();k++){
+                    SGP newBucket = new SGP();
+                    newBucket.addAll(toAdd.get(i));
+                    newBucket.addAll(toAdd.get(k));
+                    toAddCulm.add(newBucket);
+                }
+            }
             sgps.addAll(toAdd);
+            sgps.addAll(toAddCulm);
             SGP singleSGP = new SGP();
             singleSGP.add(t);
             sgps.add(singleSGP);
