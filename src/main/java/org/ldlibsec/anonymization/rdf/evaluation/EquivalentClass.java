@@ -25,10 +25,15 @@ public class EquivalentClass {
         return size;
     }
 
-    public int calculateLDiversity(){
-        //TODO per Attribute
+    public int calculateLDiversity(String attr){
+        int l=0;
+        for(AttributeCount aCount : new HashSet<AttributeCount>(this.sensibleValues)){
+            if(aCount.getProperty().equals(attr)){
+                l++;
+            }
+        }
         //deduplicate and get size
-        return new HashSet<AttributeCount>(this.sensibleValues).size();
+        return l;
     }
 
     public int size(){

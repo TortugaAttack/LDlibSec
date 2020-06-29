@@ -5,7 +5,7 @@ import org.apache.jena.query.QueryExecution;
 import org.apache.jena.rdf.model.*;
 import org.ldlibsec.evaluation.score.FMeasureEvaluationScore;
 import org.ldlibsec.evaluation.score.FMeasuresCounts;
-import org.ldlibsec.evaluation.score.TClosenessPair;
+import org.ldlibsec.evaluation.score.StringDoublePair;
 import org.ldlibsec.evaluation.score.VariationDistance;
 
 import java.util.*;
@@ -92,16 +92,37 @@ public class AnonymityEvaluator {
         AnonymityMeasure measure = new AnonymityMeasure();
         int k = calculateK(eqClasses);
         measure.setkAnonymity(k);
-        int l = calculateL(eqClasses);
+        //TODO fix l Diversity: needs to be per attribute
+        List<StringDoublePair> l = calculateL(eqClasses);
         measure.setlDiversity(l);
-        List<TClosenessPair> t = calculateT(eqClasses);
+        List<StringDoublePair> t = calculateT(eqClasses);
         //TODO fix t closeness calculation
         measure.settCloseness(t);
         return measure;
     }
 
-    private static List<TClosenessPair> calculateT(List<EquivalentClass> eqClasses) {
-        List<TClosenessPair> ret = new ArrayList<TClosenessPair>();
+    private static List<StringDoublePair> calculateL(List<EquivalentClass> eqClasses) {
+        List<StringDoublePair> ret = new ArrayList<StringDoublePair>();
+        Collection<String> attributes = getAttributes(eqClasses);
+        Map<String, List<AttributeCount>> features = getFeatures(eqClasses, attributes);
+        for(String attr : features.keySet()) {
+
+            int l = -1;
+            for (EquivalentClass eqClass : eqClasses) {
+                int classLDiv = eqClass.calculateLDiversity(attr);
+                if (l == -1) {
+                    l = classLDiv;
+                } else {
+                    l = Math.min(l, classLDiv);
+                }
+            }
+            ret.add(new StringDoublePair(l, attr));
+        }
+        return ret;
+    }
+
+    private static List<StringDoublePair> calculateT(List<EquivalentClass> eqClasses) {
+        List<StringDoublePair> ret = new ArrayList<StringDoublePair>();
         EarthMoversDistance emd = new EarthMoversDistance();
         Collection<String> attributes = getAttributes(eqClasses);
         Map<String, List<AttributeCount>> features = getFeatures(eqClasses, attributes);
@@ -116,7 +137,7 @@ public class AnonymityEvaluator {
                     t = Math.min(t, VariationDistance.compute(distributions[0], distributions[1]));
                 }
             }
-            ret.add(new TClosenessPair(t, attr));
+            ret.add(new StringDoublePair(t, attr));
         }
         return ret;
     }
@@ -171,18 +192,7 @@ public class AnonymityEvaluator {
         return features;
     }
 
-    private static int calculateL(List<EquivalentClass> eqClasses) {
-        int l=-1;
-        for(EquivalentClass eqClass : eqClasses){
-            int classLDiv = eqClass.calculateLDiversity();
-            if(l==-1){
-                l= classLDiv;
-            }else {
-                l = Math.min(l, classLDiv);
-            }
-        }
-        return l;
-    }
+
 
     private static int calculateK(List<EquivalentClass> eqClasses) {
         int k=-1;
@@ -221,7 +231,7 @@ public class AnonymityEvaluator {
         }
     }
 
-    public static int lDiversityCheck(Collection<Resource> entitiesOfInterest, List<Property> quasiIdentifiable, List<Property> sensibleAttributes, Model graph){
+    public static List<StringDoublePair>  lDiversityCheck(Collection<Resource> entitiesOfInterest, List<Property> quasiIdentifiable, List<Property> sensibleAttributes, Model graph){
         return anonymityCheck(entitiesOfInterest, quasiIdentifiable, sensibleAttributes, graph).getlDiversity();
     }
 
@@ -235,7 +245,7 @@ public class AnonymityEvaluator {
      * @return
      */
     @Deprecated
-    public static  List<TClosenessPair> tClosenessCheck(Collection<Resource> entitiesOfInterest, List<Property> quasiIdentifiable, List<Property> sensibleAttributes, Model graph){
+    public static  List<StringDoublePair> tClosenessCheck(Collection<Resource> entitiesOfInterest, List<Property> quasiIdentifiable, List<Property> sensibleAttributes, Model graph){
         return anonymityCheck(entitiesOfInterest, quasiIdentifiable, sensibleAttributes, graph).gettCloseness();
     }
 

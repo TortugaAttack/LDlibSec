@@ -5,7 +5,7 @@ import org.apache.jena.rdf.model.*;
 import org.junit.Test;
 import org.ldlibsec.anonymization.rdf.evaluation.AnonymityEvaluator;
 import org.ldlibsec.anonymization.rdf.evaluation.AnonymityMeasure;
-import org.ldlibsec.evaluation.score.TClosenessPair;
+import org.ldlibsec.evaluation.score.StringDoublePair;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -39,7 +39,7 @@ public class KAnonymityCheckTest {
                 ResourceFactory.createProperty("uri:zip"));
         List<Property> sensible = Lists.newArrayList(ResourceFactory.createProperty("uri:salary"),
                 ResourceFactory.createProperty("uri:disease"));
-        List<TClosenessPair> tPairs = AnonymityEvaluator.tClosenessCheck(eoi, quasiId, sensible, m);
+        List<StringDoublePair> tPairs = AnonymityEvaluator.tClosenessCheck(eoi, quasiId, sensible, m);
         System.out.println(tPairs);
 
     }

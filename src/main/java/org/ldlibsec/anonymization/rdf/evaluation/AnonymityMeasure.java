@@ -1,14 +1,14 @@
 package org.ldlibsec.anonymization.rdf.evaluation;
 
-import org.ldlibsec.evaluation.score.TClosenessPair;
+import org.ldlibsec.evaluation.score.StringDoublePair;
 
 import java.util.List;
 
 public class AnonymityMeasure {
 
     private int kAnonymity;
-    private int lDiversity;
-    private  List<TClosenessPair> tCloseness;
+    private List<StringDoublePair> lDiversity;
+    private  List<StringDoublePair> tCloseness;
 
     public int getkAnonymity() {
         return kAnonymity;
@@ -18,19 +18,19 @@ public class AnonymityMeasure {
         this.kAnonymity = kAnonymity;
     }
 
-    public int getlDiversity() {
+    public List<StringDoublePair> getlDiversity() {
         return lDiversity;
     }
 
-    public void setlDiversity(int lDiversity) {
+    public void setlDiversity(List<StringDoublePair> lDiversity) {
         this.lDiversity = lDiversity;
     }
 
-    public  List<TClosenessPair> gettCloseness() {
+    public  List<StringDoublePair> gettCloseness() {
         return tCloseness;
     }
 
-    public void settCloseness( List<TClosenessPair> tCloseness) {
+    public void settCloseness( List<StringDoublePair> tCloseness) {
         this.tCloseness = tCloseness;
     }
 }
