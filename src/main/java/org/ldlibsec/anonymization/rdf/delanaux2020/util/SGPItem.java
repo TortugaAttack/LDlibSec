@@ -1,13 +1,12 @@
-package org.ldlibsec.anonymization.rdf.util;
+package org.ldlibsec.anonymization.rdf.delanaux2020.util;
 
 import org.apache.jena.graph.Triple;
 import org.ldlibsec.util.RDFFormatter;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-public class SGP {
+public class SGPItem {
 
     private Set<Triple> triples = new HashSet<Triple>();
     private Set<String> connectors = new HashSet<String>();
@@ -17,7 +16,7 @@ public class SGP {
         return variables;
     }
 
-    public void addAll(SGP sgp){
+    public void addAll(SGPItem sgp){
         for(Triple t : sgp.triples){
             add(t);
         }

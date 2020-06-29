@@ -1,17 +1,13 @@
-package org.ldlibsec.anonymization.rdf;
+package org.ldlibsec.anonymization.rdf.delanaux2020;
 
-import org.apache.jena.ext.com.google.common.collect.Sets;
-import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.query.Query;
-import org.apache.jena.query.QueryExecution;
 import org.apache.jena.sparql.syntax.ElementWalker;
-import org.apache.jena.update.Update;
 import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateRequest;
-import org.ldlibsec.anonymization.rdf.util.ConnectedComponentsGatherer;
-import org.ldlibsec.anonymization.rdf.util.GraphComponent;
-import org.ldlibsec.anonymization.rdf.util.SGP;
+import org.ldlibsec.anonymization.rdf.delanaux2020.util.ConnectedComponentsGatherer;
+import org.ldlibsec.anonymization.rdf.delanaux2020.util.GraphComponent;
+import org.ldlibsec.anonymization.rdf.delanaux2020.util.SGPItem;
 import org.ldlibsec.util.RDFFormatter;
 
 import java.util.*;
@@ -27,7 +23,7 @@ public class DataLinkageRobustAnonymizer {
     private static final String BLANK_NODE_PREFIX = "_:b";
     private static final String VAR_PREFIX = "?v";
 
-    public List<UpdateRequest> findSaveOpsSameAs(List<Query> privacyQueries){
+    public List<UpdateRequest> findSaveOpsSameAs(Collection<Query> privacyQueries){
         List<UpdateRequest> updates = new ArrayList<UpdateRequest>();
         for(Query q : privacyQueries){
             //Gather all connected components
@@ -105,23 +101,23 @@ public class DataLinkageRobustAnonymizer {
 
             //iterate over each connected component block
             for(GraphComponent component : connectedComponents){
-                for(SGP sgp : component.getConnectedBuckets()) {
+                for(SGPItem sgpItem : component.getSGP()) {
                     Map<String, String> crit2blank = new HashMap<String, String>();
                     Integer bnID = 1;
                     if (component.getBlanks().contains("b" + bnID)) {
                         bnID++;
                     }
-                    for (String critVal : sgp.getProjectionCritVals(component.gettCrit(q.getProjectVars()))) {
+                    for (String critVal : sgpItem.getProjectionCritVals(component.gettCrit(q.getProjectVars()))) {
                         crit2blank.put(critVal, BLANK_NODE_PREFIX + bnID);
                         bnID++;
                     }
-                    String body = sgp.getBody();
+                    String body = sgpItem.getBody();
                     String insertBody = body;
                     for (String replace : crit2blank.keySet()) {
                         insertBody = insertBody.replace(replace, crit2blank.get(replace));
                     }
 
-                    updates.add(UpdateFactory.create(generateUpdate(sgp.getVariables(), body, insertBody)));
+                    updates.add(UpdateFactory.create(generateUpdate(sgpItem.getVariables(), body, insertBody)));
                 }
                 if(component.getVariables().isEmpty()){
                     Random r = new Random();

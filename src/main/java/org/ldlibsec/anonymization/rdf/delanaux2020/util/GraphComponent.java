@@ -1,20 +1,15 @@
-package org.ldlibsec.anonymization.rdf.util;
+package org.ldlibsec.anonymization.rdf.delanaux2020.util;
 
-import org.apache.jena.atlas.io.AWriter;
-import org.apache.jena.atlas.io.IO;
-import org.apache.jena.graph.Node;
 import org.apache.jena.graph.Triple;
-import org.apache.jena.riot.out.NodeFormatterNT;
 import org.apache.jena.sparql.core.Var;
 import org.ldlibsec.util.RDFFormatter;
 
-import java.io.StringWriter;
 import java.util.*;
 
 public class GraphComponent {
 
     private List<Triple> triples = new ArrayList<Triple>();
-    private List<SGP> sgps = new ArrayList<SGP>();
+    private List<SGPItem> sgp = new ArrayList<SGPItem>();
     private Set<String> variables = new HashSet<String>();
     private Set<String> tCrit = new HashSet<String>();
     private Set<String> blanks = new HashSet<String>();
@@ -43,14 +38,14 @@ public class GraphComponent {
         return variables;
     }
 
-    public List<SGP> getConnectedBuckets(){
-        Collections.sort(sgps, new Comparator<SGP>() {
+    public List<SGPItem> getSGP(){
+        Collections.sort(sgp, new Comparator<SGPItem>() {
             @Override
-            public int compare(SGP sgp, SGP t1) {
+            public int compare(SGPItem sgp, SGPItem t1) {
                 return t1.size().compareTo(sgp.size());
             }
         });
-        return sgps;
+        return sgp;
     }
 
     public void setVariables(Set<String> variables) {
@@ -88,30 +83,30 @@ public class GraphComponent {
     public void add(Triple t) {
         this.triples.add(t);
         if(buildSGPs){
-            List<SGP> toAdd = new ArrayList<SGP>();
-            for(SGP sgp : sgps){
+            List<SGPItem> toAdd = new ArrayList<SGPItem>();
+            for(SGPItem sgp : sgp){
                 if(sgp.checkConnection(t)){
-                    SGP newBucket = new SGP();
+                    SGPItem newBucket = new SGPItem();
                     newBucket.addAll(sgp);
                     newBucket.add(t);
                     toAdd.add(newBucket);
                 }
             }
-            List<SGP> toAddCulm = new ArrayList<SGP>();
+            List<SGPItem> toAddCulm = new ArrayList<SGPItem>();
             //creating b5   here: b1: ac , b2: de, t: cd -> b3: acd and b4: cde, b5: acde
             for(int i=0;i<toAdd.size();i++){
                 for(int k=i+1;k<toAdd.size();k++){
-                    SGP newBucket = new SGP();
+                    SGPItem newBucket = new SGPItem();
                     newBucket.addAll(toAdd.get(i));
                     newBucket.addAll(toAdd.get(k));
                     toAddCulm.add(newBucket);
                 }
             }
-            sgps.addAll(toAdd);
-            sgps.addAll(toAddCulm);
-            SGP singleSGP = new SGP();
+            sgp.addAll(toAdd);
+            sgp.addAll(toAddCulm);
+            SGPItem singleSGP = new SGPItem();
             singleSGP.add(t);
-            sgps.add(singleSGP);
+            sgp.add(singleSGP);
         }
         addBlankNodes(t);
         //update Counts, tCrit and vars

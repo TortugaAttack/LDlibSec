@@ -5,6 +5,7 @@ import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryFactory;
 import org.apache.jena.update.UpdateRequest;
 import org.junit.Test;
+import org.ldlibsec.anonymization.rdf.delanaux2020.DataLinkageRobustAnonymizer;
 
 import java.util.List;
 

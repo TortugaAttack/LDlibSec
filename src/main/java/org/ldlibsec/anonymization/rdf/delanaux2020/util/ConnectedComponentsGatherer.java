@@ -1,10 +1,9 @@
-package org.ldlibsec.anonymization.rdf.util;
+package org.ldlibsec.anonymization.rdf.delanaux2020.util;
 
 import org.apache.jena.graph.Triple;
 import org.apache.jena.sparql.core.TriplePath;
 import org.apache.jena.sparql.syntax.ElementPathBlock;
 import org.apache.jena.sparql.syntax.ElementTriplesBlock;
-import org.apache.jena.sparql.syntax.ElementVisitor;
 import org.apache.jena.sparql.syntax.ElementVisitorBase;
 
 import java.util.*;
