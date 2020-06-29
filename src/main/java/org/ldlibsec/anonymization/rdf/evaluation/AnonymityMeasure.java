@@ -26,6 +26,7 @@ public class AnonymityMeasure {
         this.lDiversity = lDiversity;
     }
 
+    @Deprecated
     public  List<StringDoublePair> gettCloseness() {
         return tCloseness;
     }

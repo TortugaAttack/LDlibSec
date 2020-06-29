@@ -58,10 +58,10 @@ public class AnonymityEvaluator {
      * @return biggest k reached for all EOIs
      */
     public static int kAnonymityCheck(Collection<Resource> entitiesOfInterest, List<Property> quasiIdentifiable, Model graph){
-        return anonymityCheck(entitiesOfInterest, quasiIdentifiable, new ArrayList<Property>(), graph).getkAnonymity();
+        return kltAnonymityCheck(entitiesOfInterest, quasiIdentifiable, new ArrayList<Property>(), graph).getkAnonymity();
     }
 
-    public static AnonymityMeasure anonymityCheck(Collection<Resource> entitiesOfInterest, List<Property> quasiIdentifiable, List<Property> sensibleAttributes, Model graph){
+    public static AnonymityMeasure kltAnonymityCheck(Collection<Resource> entitiesOfInterest, List<Property> quasiIdentifiable, List<Property> sensibleAttributes, Model graph){
         Collections.sort(quasiIdentifiable, new Comparator<Property>() {
             @Override
             public int compare(Property property, Property t1) {
@@ -232,7 +232,7 @@ public class AnonymityEvaluator {
     }
 
     public static List<StringDoublePair>  lDiversityCheck(Collection<Resource> entitiesOfInterest, List<Property> quasiIdentifiable, List<Property> sensibleAttributes, Model graph){
-        return anonymityCheck(entitiesOfInterest, quasiIdentifiable, sensibleAttributes, graph).getlDiversity();
+        return kltAnonymityCheck(entitiesOfInterest, quasiIdentifiable, sensibleAttributes, graph).getlDiversity();
     }
 
     /**
@@ -246,7 +246,7 @@ public class AnonymityEvaluator {
      */
     @Deprecated
     public static  List<StringDoublePair> tClosenessCheck(Collection<Resource> entitiesOfInterest, List<Property> quasiIdentifiable, List<Property> sensibleAttributes, Model graph){
-        return anonymityCheck(entitiesOfInterest, quasiIdentifiable, sensibleAttributes, graph).gettCloseness();
+        return kltAnonymityCheck(entitiesOfInterest, quasiIdentifiable, sensibleAttributes, graph).gettCloseness();
     }
 
 

@@ -53,7 +53,7 @@ public class KAnonymityCheckTest {
                 ResourceFactory.createProperty("uri:zip"));
         List<Property> sensible = Lists.newArrayList(ResourceFactory.createProperty("uri:salary"),
                 ResourceFactory.createProperty("uri:disease"));
-        AnonymityMeasure measure = AnonymityEvaluator.anonymityCheck(eoi, quasiId, sensible, m);
+        AnonymityMeasure measure = AnonymityEvaluator.kltAnonymityCheck(eoi, quasiId, sensible, m);
         System.out.println(measure.getkAnonymity());
         System.out.println(measure.getlDiversity());
         System.out.println(measure.gettCloseness());
