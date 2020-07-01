@@ -55,9 +55,9 @@ public class DataLinkageRobustAnonymizer {
                     }
                     Set<String> vars = new HashSet<String>();
                     getVars(t, vars);
-                    updates.add(UpdateFactory.create(generateUpdate(vars, body, insertBody)));
+                    updates.add(UpdateFactory.create(generateUpdate(component.gettCrit(q.getProjectVars()), body, insertBody)));
                 }
-                if(component.getVariables().isEmpty()){
+                if(component.getProjectVars(q.getProjectVars()).isEmpty()){
                     Random r = new Random();
                     int remove = r.nextInt(component.getTriples().size());
                     Triple t = component.getTriples().get(remove);
@@ -117,9 +117,9 @@ public class DataLinkageRobustAnonymizer {
                         insertBody = insertBody.replace(replace, crit2blank.get(replace));
                     }
 
-                    updates.add(UpdateFactory.create(generateUpdate(sgpItem.getVariables(), body, insertBody)));
+                    updates.add(UpdateFactory.create(generateUpdate(sgpItem.getProjectionCritVals(component.gettCrit(q.getProjectVars())), body, insertBody)));
                 }
-                if(component.getVariables().isEmpty()){
+                if(component.getProjectVars(q.getProjectVars()).isEmpty()){
                     Random r = new Random();
                     int remove = r.nextInt(component.getTriples().size());
                     Triple t = component.getTriples().get(remove);

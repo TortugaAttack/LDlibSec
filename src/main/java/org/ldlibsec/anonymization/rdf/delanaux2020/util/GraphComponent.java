@@ -150,4 +150,12 @@ public class GraphComponent {
     }
 
 
+    public Set<String> getProjectVars(List<Var> projectVars) {
+        for(Var v : projectVars){
+            if(variables.contains(v.toString(true))){
+                tCrit.add(v.toString(true));
+            }
+        }
+        return tCrit;
+    }
 }
