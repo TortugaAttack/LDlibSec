@@ -138,7 +138,7 @@ public class AnonymityEvaluator {
                 if (t == -1) {
                     t = measure.compute(distributions[0], distributions[1]);
                 } else {
-                    t = Math.min(t, measure.compute(distributions[0], distributions[1]));
+                    t = Math.max(t, measure.compute(distributions[0], distributions[1]));
                 }
             }
             ret.add(new StringDoublePair(t, attr));
