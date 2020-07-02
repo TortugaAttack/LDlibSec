@@ -34,4 +34,9 @@ public class AnonymityMeasure {
     public void settCloseness( List<StringDoublePair> tCloseness) {
         this.tCloseness = tCloseness;
     }
+
+    @Override
+    public String toString(){
+        return "k: "+kAnonymity+"\nl: "+lDiversity.toString()+"\nt: "+tCloseness;
+    }
 }

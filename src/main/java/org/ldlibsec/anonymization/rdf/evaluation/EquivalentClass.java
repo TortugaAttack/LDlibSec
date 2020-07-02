@@ -1,5 +1,7 @@
 package org.ldlibsec.anonymization.rdf.evaluation;
 
+import org.w3c.dom.Attr;
+
 import java.util.*;
 
 public class EquivalentClass {
@@ -17,10 +19,13 @@ public class EquivalentClass {
         this.sensibleValues = sensibleValues;
     }
 
-    public int countSensibleValues(){
+
+    public int countSensibleValues(String property){
         int size=0;
         for(AttributeCount aCount : sensibleValues){
-            size+=aCount.getCount();
+            if(aCount.getProperty().equals(property)) {
+                size += aCount.getCount();
+            }
         }
         return size;
     }
@@ -49,8 +54,23 @@ public class EquivalentClass {
     public void addEntity(String entity, Collection<AttributeCount> sensibleValues){
 
         this.entities.add(entity);
-        if(sensibleValues!=null)
-            this.sensibleValues.addAll(sensibleValues);
+        Set<AttributeCount> add = new HashSet<AttributeCount>();
+        if(sensibleValues!=null) {
+            for(AttributeCount nCount : sensibleValues) {
+                boolean notFound =true;
+                for (AttributeCount aCount : this.sensibleValues) {
+                    if(aCount.equals(nCount)){
+                        aCount.incrCount(nCount.getCount());
+                        notFound=false;
+                        break;
+                    }
+                }
+                if(notFound){
+                    add.add(nCount);
+                }
+            }
+            this.sensibleValues.addAll(add);
+        }
     }
 
     private boolean checkAttr(Collection<AttributeCount> expectedAttr, Collection<AttributeCount> actualAttr){

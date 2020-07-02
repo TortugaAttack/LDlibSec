@@ -1,46 +1,46 @@
 <uri:P1> <uri:zip> "4767*" .
 <uri:P1> <uri:age> "<=40" .
-<uri:P1> <uri:salary> "3k" .
+<uri:P1> <uri:salary> "3000"^^<http://www.w3.org/2001/XMLSchema#int> .
 <uri:P1> <uri:disease> "gastric ulcer" .
 
 <uri:P3> <uri:zip> "4767*" .
 <uri:P3> <uri:age> "<=40" .
-<uri:P3> <uri:salary> "5k" .
-<uri:P3> <uri:disease> "stomach cancer" .
+<uri:P3> <uri:salary> "4000"^^<http://www.w3.org/2001/XMLSchema#int> .
+<uri:P3> <uri:disease> "gastritis" .
 
 <uri:P8> <uri:zip> "4767*" .
 <uri:P8> <uri:age> "<=40" .
-<uri:P8> <uri:salary> "9k" .
-<uri:P8> <uri:disease> "pneumonia" .
+<uri:P8> <uri:salary> "5000"^^<http://www.w3.org/2001/XMLSchema#int> .
+<uri:P8> <uri:disease> "stomach cancer" .
 
 <uri:P4> <uri:zip> "4790*" .
 <uri:P4> <uri:age> ">=40" .
-<uri:P4> <uri:salary> "6k" .
+<uri:P4> <uri:salary> "6000"^^<http://www.w3.org/2001/XMLSchema#int> .
 <uri:P4> <uri:disease> "gastritis" .
 
 <uri:P5> <uri:zip> "4790*" .
 <uri:P5> <uri:age> ">=40" .
-<uri:P5> <uri:salary> "11k" .
+<uri:P5> <uri:salary> "11000"^^<http://www.w3.org/2001/XMLSchema#int> .
 <uri:P5> <uri:disease> "flu" .
 
 <uri:P6> <uri:zip> "4790*" .
 <uri:P6> <uri:age> ">=40" .
-<uri:P6> <uri:salary> "8k" .
+<uri:P6> <uri:salary> "8000"^^<http://www.w3.org/2001/XMLSchema#int> .
 <uri:P6> <uri:disease> "bronchitis" .
 
 <uri:P2> <uri:zip> "4760*" .
 <uri:P2> <uri:age> "<=40" .
-<uri:P2> <uri:salary> "4k" .
-<uri:P2> <uri:disease> "gastritis" .
+<uri:P2> <uri:salary> "7000"^^<http://www.w3.org/2001/XMLSchema#int> .
+<uri:P2> <uri:disease> "bronchitis" .
 
 <uri:P7> <uri:zip> "4760*" .
 <uri:P7> <uri:age> "<=40" .
-<uri:P7> <uri:salary> "7k" .
-<uri:P7> <uri:disease> "bronchitis" .
+<uri:P7> <uri:salary> "9000"^^<http://www.w3.org/2001/XMLSchema#int> .
+<uri:P7> <uri:disease> "pneumonia" .
 
 <uri:P9> <uri:zip> "4760*" .
 <uri:P9> <uri:age> "<=40" .
-<uri:P9> <uri:salary> "10k" .
+<uri:P9> <uri:salary> "10000"^^<http://www.w3.org/2001/XMLSchema#int> .
 <uri:P9> <uri:disease> "stomach cancer" .
 
 <uri:P1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <uri:Person> .

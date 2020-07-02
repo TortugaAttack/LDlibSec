@@ -1,12 +1,8 @@
 package org.ldlibsec.anonymization.rdf.evaluation;
 
-import org.apache.commons.math3.ml.distance.EarthMoversDistance;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.rdf.model.*;
-import org.ldlibsec.evaluation.score.FMeasureEvaluationScore;
-import org.ldlibsec.evaluation.score.FMeasuresCounts;
-import org.ldlibsec.evaluation.score.StringDoublePair;
-import org.ldlibsec.evaluation.score.VariationDistance;
+import org.ldlibsec.evaluation.score.*;
 
 import java.util.*;
 
@@ -95,8 +91,7 @@ public class AnonymityEvaluator {
         //TODO fix l Diversity: needs to be per attribute
         List<StringDoublePair> l = calculateL(eqClasses);
         measure.setlDiversity(l);
-        List<StringDoublePair> t = calculateT(eqClasses);
-        //TODO fix t closeness calculation
+        List<StringDoublePair> t = calculateT(entitiesOfInterest, eqClasses);
         measure.settCloseness(t);
         return measure;
     }
@@ -121,20 +116,29 @@ public class AnonymityEvaluator {
         return ret;
     }
 
-    private static List<StringDoublePair> calculateT(List<EquivalentClass> eqClasses) {
+    private static List<StringDoublePair> calculateT(Collection<Resource> entitiesOfInterest, List<EquivalentClass> eqClasses) {
         List<StringDoublePair> ret = new ArrayList<StringDoublePair>();
         EarthMoversDistance emd = new EarthMoversDistance();
         Collection<String> attributes = getAttributes(eqClasses);
         Map<String, List<AttributeCount>> features = getFeatures(eqClasses, attributes);
         for(String attr : features.keySet()) {
             double t =-1;
+
+            boolean isNumeric = features.get(attr).get(0).isNumeric();
+            DistancesMeasure measure;
+            if(isNumeric){
+                measure = new EarthMoversDistance();
+            }
+            else{
+                measure = new VariationDistance();
+            }
             for (EquivalentClass eqClass : eqClasses) {
-                double[][] distributions = getDistributions(eqClass,features.get(attr), attr);
+
+                double[][] distributions = getDistributions(eqClass,features.get(attr), attr, entitiesOfInterest.size(), isNumeric);
                 if (t == -1) {
-                    //TODO EMD doesn't make particular sense in RDF. VD might be better
-                    t = VariationDistance.compute(distributions[0], distributions[1]);
+                    t = measure.compute(distributions[0], distributions[1]);
                 } else {
-                    t = Math.min(t, VariationDistance.compute(distributions[0], distributions[1]));
+                    t = Math.min(t, measure.compute(distributions[0], distributions[1]));
                 }
             }
             ret.add(new StringDoublePair(t, attr));
@@ -154,21 +158,28 @@ public class AnonymityEvaluator {
 
 
 
-    private static double[][] getDistributions(EquivalentClass eqClass, List<AttributeCount> features, String attr) {
+    private static double[][] getDistributions(EquivalentClass eqClass, List<AttributeCount> features, String attr, int numberOfEOIs, boolean numerical) {
         Collection<AttributeCount> classFeatures = eqClass.getSensibleValues(attr);
         double[] p = new double[features.size()];
-        int valuesInClass = classFeatures.size();
-        int size=0;
-        for(AttributeCount aCount : features){
-            size+=aCount.getCount();
+        int valuesInClass = eqClass.countSensibleValues(attr);
+        List<AttributeCount> featureCopy = new ArrayList<AttributeCount>(features);
+        if(numerical){
+            Collections.sort(featureCopy, new Comparator<AttributeCount>() {
+                @Override
+                public int compare(AttributeCount attributeCount, AttributeCount t1) {
+                    Double val1 =  Double.parseDouble(attributeCount.getResource());
+                    Double val2 =  Double.parseDouble(t1.getResource());
+                    return val1.compareTo(val2);
+                }
+            });
         }
         for(AttributeCount classFeature : classFeatures) {
-            p[features.indexOf(classFeature)] = classFeature.getCount()*1.0/valuesInClass;
+            p[featureCopy.indexOf(classFeature)] = classFeature.getCount()*1.0/valuesInClass;
         }
         double[] q = new double[features.size()];
 
-        for(int i=0;i<features.size();i++){
-            q[i]=features.get(i).getCount()*1.0/size;
+        for(int i=0;i<featureCopy.size();i++){
+            q[i]=featureCopy.get(i).getCount()*1.0/numberOfEOIs;
         }
         return new double[][]{p, q};
     }
@@ -179,13 +190,15 @@ public class AnonymityEvaluator {
             Collection<AttributeCount> currentFeatures = eqClass.getSensibleValues();
             for(AttributeCount feat : currentFeatures){
                 //check if attribute already exists
+                AttributeCount copy = new AttributeCount(feat.getProperty(), feat.getResource(), feat.isNumeric());
+                copy.incrCount(feat.getCount()-1);
                 features.putIfAbsent(feat.getProperty(), new ArrayList<AttributeCount>());
                 int index = -1;
                 if ((index = features.get(feat.getProperty()).indexOf(feat)) == -1) {
                     //Feature not yet seen, so just add it
-                    features.get(feat.getProperty()).add(feat);
+                    features.get(feat.getProperty()).add(copy);
                 } else {
-                    features.get(feat.getProperty()).get(index).incrCount(feat.getCount());
+                    features.get(feat.getProperty()).get(index).incrCount(copy.getCount());
                 }
             }
         }
@@ -211,7 +224,7 @@ public class AnonymityEvaluator {
             List<Statement> subjectParts = graph.listStatements(entity, qIAttr, (RDFNode) null).toList();
             //TODO what if stmts are empty? should a null be added?
             for(Statement stmt : subjectParts){
-                AttributeCount acCount = new AttributeCount(stmt.getPredicate().toString(), stmt.getObject().toString());
+                AttributeCount acCount = new AttributeCount(stmt.getPredicate(), stmt.getObject());
                 int index=-1;
                 if((index=outSet.indexOf(acCount))!=-1){
                     outSet.get(index).incrCount();
@@ -221,7 +234,7 @@ public class AnonymityEvaluator {
             List<Statement> objectParts = graph.listStatements(null, qIAttr, entity).toList();
             //TODO what if stmts are empty? should a null be added?
             for(Statement stmt : objectParts){
-                AttributeCount acCount = new AttributeCount(stmt.getPredicate().toString(), stmt.getSubject().toString());
+                AttributeCount acCount = new AttributeCount(stmt.getPredicate(), stmt.getSubject());
                 int index=-1;
                 if((index=outSet.indexOf(acCount))!=-1){
                     inSet.get(index).incrCount();
@@ -244,7 +257,6 @@ public class AnonymityEvaluator {
      * @param graph
      * @return
      */
-    @Deprecated
     public static  List<StringDoublePair> tClosenessCheck(Collection<Resource> entitiesOfInterest, List<Property> quasiIdentifiable, List<Property> sensibleAttributes, Model graph){
         return kltAnonymityCheck(entitiesOfInterest, quasiIdentifiable, sensibleAttributes, graph).gettCloseness();
     }

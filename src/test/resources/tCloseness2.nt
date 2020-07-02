@@ -1,0 +1,44 @@
+<:P1> <:zone> "2C" .
+<:P2> <:zone> "2C" .
+<:P3> <:zone> "2C" .
+<:P4> <:zone> "4F" .
+<:P5> <:zone> "4F" .
+<:P6> <:zone> "4F" .
+<:P7> <:zone> "4F" .
+<:P8> <:zone> "9A" .
+<:P9> <:zone> "9A" .
+<:P10> <:zone> "3B" .
+<:P11> <:zone> "3B" .
+<:P12> <:zone> "3B" .
+<:P13> <:zone> "3B" .
+<:P14> <:zone> "3B" .
+
+<:P1> <:incident> "power outage" .
+<:P2> <:incident> "power outage" .
+<:P3> <:incident> "power outage" .
+<:P4> <:incident> "theft" .
+<:P5> <:incident> "fire" .
+<:P6> <:incident> "fatal accident" .
+<:P7> <:incident> "fire" .
+<:P8> <:incident> "sidewalk repair" .
+<:P9> <:incident> "power outage" .
+<:P10> <:incident> "pest control" .
+<:P11> <:incident> "power outage" .
+<:P12> <:incident> "sidewalk repair" .
+<:P13> <:incident> "tree replanting" .
+<:P14> <:incident> "sidewalk repair" .
+
+<:P1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <uri:Person> .
+<:P2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <uri:Person> .
+<:P3> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <uri:Person> .
+<:P4> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <uri:Person> .
+<:P5> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <uri:Person> .
+<:P6> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <uri:Person> .
+<:P7> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <uri:Person> .
+<:P8> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <uri:Person> .
+<:P9> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <uri:Person> .
+<:P10> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <uri:Person> .
+<:P11> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <uri:Person> .
+<:P12> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <uri:Person> .
+<:P13> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <uri:Person> .
+<:P14> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <uri:Person> .
