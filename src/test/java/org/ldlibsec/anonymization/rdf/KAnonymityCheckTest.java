@@ -45,6 +45,18 @@ public class KAnonymityCheckTest {
     }
 
     @Test
+    public void testTCloseness3() throws FileNotFoundException {
+        Model m = ModelFactory.createDefaultModel();
+        m.read(new FileReader("src/test/resources/tCloseness3.nt"),null, "N-TRIPLE");
+        List<Resource> eoi = m.listResourcesWithProperty(ResourceFactory.createProperty("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")).toList();
+        List<Property> quasiId = Lists.newArrayList(ResourceFactory.createProperty(":age"),
+                ResourceFactory.createProperty(":zip"));
+        List<Property> sensible = Lists.newArrayList(ResourceFactory.createProperty(":disease"));
+        List<StringDoublePair> tPairs = AnonymityEvaluator.tClosenessCheck(eoi, quasiId, sensible, m);
+        System.out.println(tPairs);
+    }
+
+    @Test
     public void testTCloseness() throws FileNotFoundException {
         Model m = ModelFactory.createDefaultModel();
         m.read(new FileReader("src/test/resources/tCloseness.nt"),null, "N-TRIPLE");

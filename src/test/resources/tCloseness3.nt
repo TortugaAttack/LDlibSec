@@ -1,0 +1,29 @@
+<:P1> <:age> ">40" .
+<:P2> <:age> ">40" .
+<:P3> <:age> ">40" .
+<:P4> <:age> "20-50" .
+<:P5> <:age> "20-50" .
+<:P6> <:age> "20-50" .
+
+<:P1> <:zip> "17***" .
+<:P2> <:zip> "17***" .
+<:P3> <:zip> "17***" .
+<:P4> <:zip> "7***" .
+<:P5> <:zip> "7***" .
+<:P6> <:zip> "7***" .
+
+
+<:P1> <:disease> "cancer" .
+<:P2> <:disease> "asthma" .
+<:P3> <:disease> "asthma" .
+<:P4> <:disease> "lupus" .
+<:P5> <:disease> "athrosis" .
+<:P6> <:disease> "lupus" .
+
+
+<:P1> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <uri:Person> .
+<:P2> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <uri:Person> .
+<:P3> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <uri:Person> .
+<:P4> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <uri:Person> .
+<:P5> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <uri:Person> .
+<:P6> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <uri:Person> .

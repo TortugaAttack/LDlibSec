@@ -1,9 +1,14 @@
 package org.ldlibsec.anonymization.rdf.evaluation;
 
+import org.aksw.limes.core.controller.Controller;
+import org.aksw.limes.core.controller.LimesResult;
+import org.aksw.limes.core.io.config.Configuration;
+import org.aksw.limes.core.io.mapping.AMapping;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.rdf.model.*;
 import org.ldlibsec.evaluation.score.*;
 
+import java.io.File;
 import java.util.*;
 
 public class AnonymityEvaluator {
@@ -16,31 +21,63 @@ public class AnonymityEvaluator {
      * <br/>
      * Provides a simple evaluation if anonymized EOI can be de-anonymized with a public dataset which might include the EOIs
      *
-     * @param anonymized The Graph which was anonymized
-     * @param additionalData Other graph which might contain these
-     * @param entitiesOfInterestAnonymized anonymized entities within the anonymized graph
-     * @param entitiesOfInterest the deanoymized entities (gold standard) which are either in the additionalData graph or null if not, has to be in the same order as entitiesOfInterestAnonymized
+     * @param benchmark The Limes Configuration representing the benchmark
+     * @param anonymized The Graph which was anonymized (either absolute path or sparql endpoint)
+     * @param additionalData Other graph which might contain these (either absolute path or sparql endpoint)
+     * @param anonymizedToReal Basically the gold standard. Mapping from Anonymized Node to Actual Ident.
      * @return f1 score
      */
-    public static FMeasureEvaluationScore limesDeAnonymizationTest(QueryExecution anonymized, QueryExecution additionalData, List<String> entitiesOfInterestAnonymized, List<String> entitiesOfInterest){
-        //TODO for each anonymized EOI check with limes against anonymized and additionalData
+    public static FMeasureEvaluationScore limesDeAnonymizationTest(Configuration benchmark, String anonymized, String additionalData, Map<String, String> anonymizedToReal){
         List<FMeasuresCounts> values = new ArrayList<FMeasuresCounts>();
-        List<String> deaonymizedEOIs = new ArrayList<String>();
-        for(String eoi : entitiesOfInterestAnonymized){
-            //TODO evaluate if limes score is high enough and if so add to results otherwise add null
-
+        benchmark.getSourceInfo().setEndpoint(anonymized);
+        benchmark.getTargetInfo().setEndpoint(additionalData);
+        Map<String, List<String>> deaonymizedEOIs = new HashMap<String, List<String>>();
+        LimesResult res = Controller.getMapping(benchmark);
+        Map<String, HashMap<String, Double>> reIdentMap = res.getAcceptanceMapping().getMap();
+        for(String anonEOI : reIdentMap.keySet()){
+            String actualEntity = anonymizedToReal.get(anonEOI);
+            List<String> sortedConfidence = sortReIdentMap(anonEOI, res.getAcceptanceMapping());
         }
-        //calculate F1-score, however not the best measure here, sufficient for now
-        for(int i=0; i<deaonymizedEOIs.size();i++){
-            String eoi = deaonymizedEOIs.get(i);
-            if((eoi!= null && eoi.equals(entitiesOfInterest.get(i))) || (eoi==null && entitiesOfInterest.get(i)==null)){
-                values.add(new FMeasuresCounts(1,0,0));
+        for(String eoi : deaonymizedEOIs.keySet()){
+            int fp=0;
+            boolean notFoundEOI = true;
+            for(String deAnonEOI : deaonymizedEOIs.get(eoi)){
+                if((deAnonEOI == null && eoi == null) ||
+                        (deAnonEOI != null && deAnonEOI.equals(eoi))){
+                    values.add(new FMeasuresCounts(1,fp,0));
+                    notFoundEOI=false;
+                    break;
+                }
+                else{
+                    //Found higher ranked false positive
+                    fp++;
+                }
             }
-            else{
-                values.add(new FMeasuresCounts(0,1,1));
+            //fn =1 if
+            if(notFoundEOI){
+                //false negative is 1
+                values.add(new FMeasuresCounts(0,fp,1));
             }
         }
         return new FMeasureEvaluationScore(values);
+    }
+
+    private static List<String> sortReIdentMap(String anonEOI, AMapping reIdentMap) {
+        List<String> ret = new ArrayList<String>();
+        for(String key : reIdentMap.getMap().get(anonEOI).keySet()){
+            ret.add(key);
+        }
+
+        Collections.sort(ret, new Comparator<String>() {
+
+            @Override
+            public int compare(String s, String t1) {
+                Double conf1 = reIdentMap.getConfidence(anonEOI, s);
+                Double conf2 = reIdentMap.getConfidence(anonEOI, t1);
+                return conf2.compareTo(conf1);
+            }
+        });
+        return ret;
     }
 
 
@@ -88,7 +125,6 @@ public class AnonymityEvaluator {
         AnonymityMeasure measure = new AnonymityMeasure();
         int k = calculateK(eqClasses);
         measure.setkAnonymity(k);
-        //TODO fix l Diversity: needs to be per attribute
         List<StringDoublePair> l = calculateL(eqClasses);
         measure.setlDiversity(l);
         List<StringDoublePair> t = calculateT(entitiesOfInterest, eqClasses);
