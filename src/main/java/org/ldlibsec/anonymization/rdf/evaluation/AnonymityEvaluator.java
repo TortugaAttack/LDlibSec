@@ -18,22 +18,37 @@ public class AnonymityEvaluator {
     /**
      * Tries to de-anonymize given entities of interest over two graphs, assuming that the entities are
      * somewhat anonymized within the anonymized graph.<br/>
-     * using LIMES and returns F1, Precision and Recall<br/>
+     * using LIMES and returns Macro and Micro F1, Precision and Recall<br/>
      * <br/>
+     * As Limes provides a Confidence Score for each solution we will look  at all results and sort them.
+     * Then for all values with the same confidence score (thus taking k-Anonymity into account) we check if the entity is among them and if so
+     * set tp=1 and fp to the number of values having the same confidence score.
+     * This is done to assure that if k entities were anonymized using k-Anonymity it will most likely link to the whole equivalence group.
+     * Using this approach allows us to praise that we could find the right result, however punish it for receiving too many.
+     *<br/><br/>
+     * We stop if there are no more results or the entity was correctly identified.
+     *<br/><br/>
+     * This will punish the approach for all wrong entities having a better or equal confidence score than the actual entity,
+     * while we praise it if the entity has a high (or is the best) confidence score.
+     *<br/><br/>
      * Provides a simple evaluation if anonymized EOI can be de-anonymized with a public dataset which might include the EOIs
      *
      * @param benchmark The Limes Configuration representing the benchmark
      * @param anonymized The Graph which was anonymized (either absolute path or sparql endpoint)
      * @param additionalData Other graph which might contain these (either absolute path or sparql endpoint)
      * @param anonymizedToReal Basically the gold standard. Mapping from Anonymized Node to Actual Ident.
-     * @return f1 score
+     * @param onlyBest States if eval should only allow the best solution of Limes insteaf of a confidence set, thus if an entity is not found fp=fn=1
+     * @return macro & micro f1 score
      */
-    public static FMeasureEvaluationScore limesDeAnonymizationTest(Configuration benchmark, String anonymized, String additionalData, Map<String, String> anonymizedToReal){
+    public static FMeasureEvaluationScore limesDeAnonymizationTest(Configuration benchmark, String anonymized, String additionalData, Map<String, String> anonymizedToReal, Boolean onlyBest){
         List<FMeasuresCounts> values = new ArrayList<FMeasuresCounts>();
         benchmark.getSourceInfo().setEndpoint(anonymized);
         benchmark.getTargetInfo().setEndpoint(additionalData);
         Map<String, List<ConfidencePair>> deaonymizedEOIs = new HashMap<String, List<ConfidencePair>>();
         LimesResult res = Controller.getMapping(benchmark);
+        if(onlyBest) {
+            res.forceOneToOneMapping();
+        }
         Map<String, HashMap<String, Double>> reIdentMap = res.getAcceptanceMapping().getMap();
         for(String anonEOI : reIdentMap.keySet()){
             String actualEntity = anonymizedToReal.get(anonEOI);
@@ -56,10 +71,10 @@ public class AnonymityEvaluator {
             for(ConfidencePair deAnonEOI : deaonymizedEOIs.get(eoi)){
                 /*
                 what if k entities (e.g. due to kAnonymity) were accepted by limes, but as they are indistinguishable for Limes, they all have the same confidence.
-                thus we should use Blocks of Entities with the same confidence level instead and  if the entity is in there -> tp=1, and for all other entities fp=n-1 +(all previous false positive entities)
+                thus we use Blocks of Entities with the same confidence level instead and  if the entity is in there -> tp=1, and for all other entities fp=n-1 +(all previous false positive entities)
                  */
                 if(oldConfidence != deAnonEOI.confidence && foundEOI){
-                    //confidence changed so break the loop, otherwise as long as they have the same confidence: add fp 
+                    //confidence changed so break the loop, otherwise as long as they have the same confidence: add fp
                     break;
                 }
                 if((deAnonEOI.entity == null && eoi == null) ||
@@ -68,12 +83,12 @@ public class AnonymityEvaluator {
                     foundEOI=true;
                 }
                 else{
-                    //Found higher ranked false positive
+                    //Found higher or equally ranked false positive
                     fp++;
                 }
                 oldConfidence = deAnonEOI.confidence;
             }
-            //fn =1 if
+            //entity was not found -> false negative
             if(!foundEOI){
                 //false negative is 1
                 fn=1;

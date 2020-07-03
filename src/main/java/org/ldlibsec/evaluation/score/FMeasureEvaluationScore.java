@@ -2,6 +2,9 @@ package org.ldlibsec.evaluation.score;
 
 import java.util.List;
 
+/**
+ * provides macro and micro f1 score, precision and recall
+ */
 public class FMeasureEvaluationScore {
 
     public enum F1Type {MacroF1, MicroF1}
