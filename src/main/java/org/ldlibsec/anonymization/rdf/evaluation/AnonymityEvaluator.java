@@ -6,6 +6,7 @@ import org.aksw.limes.core.io.config.Configuration;
 import org.aksw.limes.core.io.mapping.AMapping;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.rdf.model.*;
+import org.ldlibsec.anonymization.rdf.evaluation.limes.ConfidencePair;
 import org.ldlibsec.evaluation.score.*;
 
 import java.io.File;
@@ -31,50 +32,69 @@ public class AnonymityEvaluator {
         List<FMeasuresCounts> values = new ArrayList<FMeasuresCounts>();
         benchmark.getSourceInfo().setEndpoint(anonymized);
         benchmark.getTargetInfo().setEndpoint(additionalData);
-        Map<String, List<String>> deaonymizedEOIs = new HashMap<String, List<String>>();
+        Map<String, List<ConfidencePair>> deaonymizedEOIs = new HashMap<String, List<ConfidencePair>>();
         LimesResult res = Controller.getMapping(benchmark);
         Map<String, HashMap<String, Double>> reIdentMap = res.getAcceptanceMapping().getMap();
         for(String anonEOI : reIdentMap.keySet()){
             String actualEntity = anonymizedToReal.get(anonEOI);
-            List<String> sortedConfidence = sortReIdentMap(anonEOI, res.getAcceptanceMapping());
+            Map<String, Double> confidenceScores = reIdentMap.get(anonEOI);
+            List<ConfidencePair> sortedConfidence = sortReIdentMap(confidenceScores);
+            deaonymizedEOIs.put(anonEOI, sortedConfidence);
         }
+        /*
+        We check if Limes could link to the correct entity at all,
+        if so: if it is the entity with the most confidence (we could identify the target with ease
+                however if there are several other entities before our target, it isn't easy however we still could figure out the entity at some point
+                if the target could not be identified, that's good.
+         */
         for(String eoi : deaonymizedEOIs.keySet()){
+            int tp=0;
             int fp=0;
-            boolean notFoundEOI = true;
-            for(String deAnonEOI : deaonymizedEOIs.get(eoi)){
-                if((deAnonEOI == null && eoi == null) ||
-                        (deAnonEOI != null && deAnonEOI.equals(eoi))){
-                    values.add(new FMeasuresCounts(1,fp,0));
-                    notFoundEOI=false;
+            int fn=0;
+            boolean foundEOI = false;
+            double oldConfidence=0;
+            for(ConfidencePair deAnonEOI : deaonymizedEOIs.get(eoi)){
+                /*
+                what if k entities (e.g. due to kAnonymity) were accepted by limes, but as they are indistinguishable for Limes, they all have the same confidence.
+                thus we should use Blocks of Entities with the same confidence level instead and  if the entity is in there -> tp=1, and for all other entities fp=n-1 +(all previous false positive entities)
+                 */
+                if(oldConfidence != deAnonEOI.confidence && foundEOI){
+                    //confidence changed so break the loop, otherwise as long as they have the same confidence: add fp 
                     break;
+                }
+                if((deAnonEOI.entity == null && eoi == null) ||
+                        (deAnonEOI.entity != null && deAnonEOI.entity.equals(eoi))){
+                    tp=1;
+                    foundEOI=true;
                 }
                 else{
                     //Found higher ranked false positive
                     fp++;
                 }
+                oldConfidence = deAnonEOI.confidence;
             }
             //fn =1 if
-            if(notFoundEOI){
+            if(!foundEOI){
                 //false negative is 1
-                values.add(new FMeasuresCounts(0,fp,1));
+                fn=1;
             }
+            values.add(new FMeasuresCounts(tp,fp,fn));
+
         }
         return new FMeasureEvaluationScore(values);
     }
 
-    private static List<String> sortReIdentMap(String anonEOI, AMapping reIdentMap) {
-        List<String> ret = new ArrayList<String>();
-        for(String key : reIdentMap.getMap().get(anonEOI).keySet()){
-            ret.add(key);
+    private static List<ConfidencePair> sortReIdentMap(Map<String, Double> confidenceScores) {
+        List<ConfidencePair> ret = new ArrayList<ConfidencePair>();
+        for(String key : confidenceScores.keySet()){
+            ret.add(new ConfidencePair(key, confidenceScores.get(key)));
         }
 
-        Collections.sort(ret, new Comparator<String>() {
+        Collections.sort(ret, new Comparator<ConfidencePair>() {
 
             @Override
-            public int compare(String s, String t1) {
-                Double conf1 = reIdentMap.getConfidence(anonEOI, s);
-                Double conf2 = reIdentMap.getConfidence(anonEOI, t1);
-                return conf2.compareTo(conf1);
+            public int compare(ConfidencePair s, ConfidencePair t1) {
+                return t1.confidence.compareTo(s.confidence);
             }
         });
         return ret;
